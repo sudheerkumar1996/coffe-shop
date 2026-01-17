@@ -9,7 +9,7 @@ const unsplashApi = createApi({
 });
 
 const getUrlForCoffeeStores = (latLong, query, limit) => {
-  return `https://places-api.foursquare.com/places/search?query=${query}&ll=${latLong}&limit=${limit}`;
+  return `https://api.foursquare.com/v3/places/search?query=${query}&ll=${latLong}&limit=${limit}`;
 };
 
 const getListOfCoffeeStorePhotos = async () => {
@@ -30,9 +30,7 @@ export const fetchCoffeeStores = async (
     method: "GET",
     headers: {
       Accept: "application/json",
-      Authorization: `Bearer ${process.env.NEXT_PUBLIC_FOURSQUARE_API_KEY}`,
-      "Accept-Language": "en",
-      "X-Places-Api-Version": "2025-06-17",
+      Authorization: process.env.NEXT_PUBLIC_FOURSQUARE_API_KEY,
     },
   };
 
@@ -41,15 +39,14 @@ export const fetchCoffeeStores = async (
     options
   );
   const data = await response.json();
-  console.log("djdgjkhdghj", data);
-  return data?.results?.map((result, idx) => {
-    const neighborhood = result.location?.neighborhood;
+  return data.results.map((result, idx) => {
+    const neighborhood = result.location.neighborhood;
     return {
-      id: result.fsq_place_id,
-      address: result.location?.address || "",
+      id: result.fsq_id,
+      address: result.location.address,
       name: result.name,
       neighbourhood: neighborhood?.length > 0 ? neighborhood[0] : "",
       imgUrl: photos.length > 0 ? photos[idx] : null,
     };
-  }) || [];
+  });
 };
